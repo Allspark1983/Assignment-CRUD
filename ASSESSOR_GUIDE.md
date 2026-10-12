@@ -18,13 +18,13 @@ Practise using and explaining the app rather than memorising this guide. This ma
 | --- | --- |
 | 0–2 minutes | Target user, problem and purpose. Show the form and task list. |
 | 2–5 minutes | Create “Revise JavaScript”; reload; edit the title; mark completed; delete. |
-| 5–8 minutes | Expand API activity. Explain GET, POST, PATCH and DELETE; show real requests in Network. |
+| 5–8 minutes | Open the browser's Network panel. Explain GET, POST, PATCH and DELETE; show the real requests. |
 | 8–12 minutes | Explain the task array, readTaskForm(), createTask(), renderTasks() and event handlers. |
 | 12–15 minutes | Show validation and mobile layout; explain persistence; answer questions. |
 
 These are practice timings, not an official agenda.
 
-Open browser developer tools, choose **Network**, select **Fetch/XHR**, and enable **Preserve log** before refreshing. The app's own activity table resets on refresh; the Network panel lets you inspect the actual method, body, response and status.
+Open browser developer tools, choose **Network**, select **Fetch/XHR**, and enable **Preserve log** before refreshing. The on-page API explanation and activity table have been removed to keep the interface simple. The Network panel lets you inspect the actual method, body, response and status; the REST API functionality is unchanged.
 
 Demonstrate all four CRUD actions. Marking a task completed is an update, not a deletion. Cancelling deletion should leave the record unchanged.
 
