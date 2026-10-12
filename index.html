@@ -1,97 +1,138 @@
 <!DOCTYPE html>
 <!--
-  STUDY TASK TRACKER - HTML ASSESSMENT COMMENTS
-  Reference: Agile assignments.pdf (JavaScript module).
-  UI/UX target: students organising revision and coursework in one place.
-  Pain point: scattered tasks make it hard to know what remains unfinished.
-  Design response: one form, one task list, clear actions and progress counters.
-  Comments explain the source code; they are not visible page content.
+  STUDY TASK TRACKER - PAGE STRUCTURE
+  Target users: students organising revision and coursework.
+  Problem: scattered tasks make it difficult to see what remains unfinished.
+  Solution: one form, one list, progress counters and clear task actions.
+  Assessment reference: Agile assignments.pdf (JavaScript module).
 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- REQUIREMENT: mobile responsiveness. Let CSS use the device viewport width. -->
+  <!-- Use the device's screen width so the CSS mobile layouts work correctly. -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="A simple study task tracker built with vanilla JavaScript and a REST API.">
   <title>Study Task Tracker</title>
   <link rel="icon" href="data:,">
-  <!-- REQUIREMENT: vanilla HTML, CSS and JavaScript; no frontend frameworks. -->
+  <!-- Plain CSS and JavaScript: no frontend framework is loaded. -->
   <link rel="stylesheet" href="style.css">
-  <!-- defer runs the script after the HTML has been parsed, so its elements exist. -->
+  <!-- defer waits until the HTML is parsed before JavaScript selects its elements. -->
   <script src="script.js" defer></script>
 </head>
 <body>
-  <!-- UI/UX: keyboard users can skip straight to the main content. -->
+  <!-- A keyboard shortcut to skip the header and reach the main content. -->
   <a class="skip-link" href="#main">Skip to tasks</a>
+
+  <!-- HEADER: the app name and the current API connection status. -->
   <header class="site-header">
-    <div class="brand"><span class="brand-icon" aria-hidden="true">✓</span> Study Task Tracker</div>
-    <!-- DOM: requestTasks() changes this element's textContent and className. -->
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">✓</span> Study Task Tracker
+    </div>
+    <!-- requestTasks() updates this element after an API request. -->
     <span id="api-status" class="connection" role="status">Connecting to API…</span>
   </header>
+
   <main id="main" class="container">
+    <!-- INTRODUCTION: explain the app's purpose to its users. -->
     <section class="intro" aria-labelledby="page-title">
       <p class="eyebrow">YOUR STUDY SPACE</p>
       <h1 id="page-title">One task at a time.</h1>
       <p>Add what you need to study. Keep track of what you finish.</p>
     </section>
-    <!-- UI/UX and DOM: renderTasks() updates these counters from the task array. -->
+
+    <!-- SUMMARY: renderTasks() calculates and updates these three numbers. -->
     <section class="stats" aria-label="Task summary">
-      <div class="stat"><span>Total tasks</span><strong id="total-count">—</strong></div>
-      <div class="stat"><span>Still to do</span><strong id="pending-count">—</strong></div>
-      <div class="stat"><span>Completed</span><strong id="completed-count">—</strong></div>
+      <div class="stat">
+        <span>Total tasks</span>
+        <strong id="total-count">—</strong>
+      </div>
+      <div class="stat">
+        <span>Still to do</span>
+        <strong id="pending-count">—</strong>
+      </div>
+      <div class="stat">
+        <span>Completed</span>
+        <strong id="completed-count">—</strong>
+      </div>
     </section>
-    <!-- Feedback announces loading, success or errors without a full page reload. -->
+
+    <!-- FEEDBACK: showMessage() changes the text and its success/error appearance.
+         aria-live lets assistive technology announce changes without a page reload. -->
     <p id="message" class="message" role="status" aria-live="polite">Loading your tasks…</p>
+
     <div class="workspace">
+      <!-- CREATE / UPDATE: one form is reused for both actions. -->
       <section class="panel form-panel" aria-labelledby="form-heading">
         <p class="eyebrow">01 / PLAN</p>
         <h2 id="form-heading">Add a study task</h2>
         <p class="muted">Start with something small and specific.</p>
-        <!--
-          CRUD - CREATE and UPDATE use this same form.
-          Event handler 1: script.js listens for submit, validates, then POSTs or PATCHes.
-          A label names the input; required and maxlength provide browser validation.
-        -->
+
+        <!-- handleTaskSubmit() validates the title and sends POST or PATCH.
+             The label names the input; required and maxlength add browser validation. -->
         <form id="task-form">
           <label for="task-title">What do you need to study?</label>
-          <input id="task-title" name="title" type="text" maxlength="100" required
-                 placeholder="e.g. Revise JavaScript functions" aria-describedby="title-hint" disabled>
+          <input
+            id="task-title"
+            name="title"
+            type="text"
+            maxlength="100"
+            required
+            placeholder="e.g. Revise JavaScript functions"
+            aria-describedby="title-hint"
+            disabled
+          >
           <p id="title-hint" class="hint">Up to 100 characters. New tasks start as pending.</p>
           <div class="form-actions">
             <button id="save-button" class="button primary" type="submit" disabled>Add task</button>
+            <!-- Only startEditing() reveals this button. -->
             <button id="cancel-button" class="button secondary" type="button" hidden>Cancel edit</button>
           </div>
         </form>
-        <div class="tip"><strong>A simple routine</strong><p>Add a task, study, then mark it completed. You can edit or delete a task at any time.</p></div>
+
+        <div class="tip">
+          <strong>A simple routine</strong>
+          <p>Add a task, study, then mark it completed. You can edit or delete a task at any time.</p>
+        </div>
       </section>
+
+      <!-- READ: show every task returned by GET /api/tasks. -->
       <section class="panel list-panel" aria-labelledby="list-heading">
         <div class="section-header">
-          <div><p class="eyebrow">02 / MAKE PROGRESS</p><h2 id="list-heading">Your study tasks</h2></div>
+          <div>
+            <p class="eyebrow">02 / MAKE PROGRESS</p>
+            <h2 id="list-heading">Your study tasks</h2>
+          </div>
           <button id="refresh-button" class="button secondary small" type="button">Reload tasks</button>
         </div>
+
+        <!-- Display loading/empty-list guidance; hide it when there are tasks. -->
         <div id="empty-state" class="empty-state">
           <span class="empty-icon" aria-hidden="true">✓</span>
           <h3 id="empty-heading">Loading your tasks…</h3>
           <p id="empty-description">Waiting for the REST API.</p>
         </div>
-        <!--
-          CRUD - READ: JavaScript fetches saved tasks with GET and displays every task here.
-          renderTasks() creates list items and Edit / Mark completed / Delete buttons.
-          Event handler 2: a click listener on this list handles those generated buttons.
-        -->
+
+        <!-- renderTasks() adds list items and action buttons here.
+             handleTaskClick() handles their Edit, completion and Delete actions. -->
         <ul id="task-list" class="task-list" aria-label="Study tasks"></ul>
       </section>
     </div>
-    <noscript><p class="message error">Enable JavaScript to use the tracker.</p></noscript>
+
+    <noscript>
+      <p class="message error">Enable JavaScript to use the tracker.</p>
+    </noscript>
   </main>
-  <!--
-    CRUD - DELETE and UI/UX: ask for confirmation before deleting a saved task.
-    method="dialog" closes this dialog; it does NOT send an HTTP request.
-    JavaScript sends DELETE only after the user chooses Delete task.
-    autofocus makes Cancel the initial choice; Escape also leaves the record unchanged.
-  -->
-  <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-dialog-title"
-          aria-describedby="delete-dialog-message delete-task-title delete-dialog-warning">
+
+  <!-- DELETE CONFIRMATION: an in-page dialog, not the browser's "site says" popup.
+       method="dialog" closes the dialog without sending an HTTP request.
+       confirmTaskDeletion() reads the choice; only approval leads to DELETE.
+       Cancel has initial focus, and Escape also leaves the saved task unchanged. -->
+  <dialog
+    id="delete-dialog"
+    class="confirm-dialog"
+    aria-labelledby="delete-dialog-title"
+    aria-describedby="delete-dialog-message delete-task-title delete-dialog-warning"
+  >
     <form method="dialog">
       <h2 id="delete-dialog-title">Delete this task?</h2>
       <p id="delete-dialog-message" class="muted">Are you sure you want to delete:</p>
@@ -103,6 +144,7 @@
       </div>
     </form>
   </dialog>
+
   <footer>Built with HTML, CSS &amp; vanilla JavaScript · One resource. Four CRUD actions.</footer>
 </body>
 </html>
