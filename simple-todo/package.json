@@ -1,0 +1,11 @@
+{
+  "name": "simple-study-todo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A small, commented vanilla JavaScript to-do list with a real REST API.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check script.js && node --check server.js"
+  },
+  "engines": { "node": ">=22" }
+}

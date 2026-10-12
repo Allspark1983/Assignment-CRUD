@@ -1,0 +1,81 @@
+/* Box model: include padding and borders in each element's width. */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 56px 16px;
+  background: #eef3ef;
+  color: #203a32;
+  font: 16px/1.5 system-ui, sans-serif;
+}
+/* A readable, centred card for students on desktop and mobile. */
+main {
+  max-width: 700px;
+  margin: auto;
+  padding: 36px;
+  background: #fff;
+  border: 1px solid #dce6df;
+  border-radius: 22px;
+  box-shadow: 0 12px 36px #183b2810;
+}
+header { margin-bottom: 28px; }
+h1 { margin: 0; font-size: clamp(2rem, 6vw, 2.7rem); letter-spacing: -1.5px; }
+h2 { margin: 0; font-size: 1.05rem; }
+p { margin: 8px 0; }
+header > p:last-child, footer { color: #586d63; }
+.eyebrow { color: #357252; font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; }
+.dot { color: #36865e; }
+form > label { display: block; margin-bottom: 8px; font-weight: 600; }
+/* Flexbox places the task input and buttons side by side. */
+.entry, .list-heading, .actions, .task-label { display: flex; align-items: center; gap: 10px; }
+.entry { flex-wrap: wrap; }
+#task-input {
+  flex: 1 1 250px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #a5b9ad;
+  border-radius: 10px;
+  font: inherit;
+}
+button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #226846;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover { filter: brightness(0.94); }
+button:disabled, input:disabled { opacity: 0.55; cursor: wait; }
+.secondary { background: #f1f5f2; color: #28573e; border-color: #d6e2da; }
+.delete { background: #fff3f2; color: #a73531; }
+.text-button { padding: 8px 0; background: transparent; color: #356d50; font-size: 0.86rem; }
+/* Visible keyboard focus makes the app usable without a mouse. */
+:focus-visible { outline: 3px solid #719f86; outline-offset: 3px; }
+#message { min-height: 24px; margin: 8px 0 22px; color: #286442; font-size: 0.88rem; }
+#message.error { color: #ad302b; }
+.list-heading { justify-content: space-between; flex-wrap: wrap; }
+#counter { padding: 4px 10px; border-radius: 20px; background: #eef4f0; font-size: 0.8rem; }
+ul { list-style: none; padding: 0; margin: 10px 0 0; }
+/* Grid gives long task names room while keeping action buttons aligned. */
+li { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 16px 0; border-bottom: 1px solid #e5ece7; }
+.task-label { min-width: 0; cursor: pointer; }
+.task-title { overflow-wrap: anywhere; }
+input[type="checkbox"] { width: 21px; height: 21px; flex-shrink: 0; accent-color: #226846; }
+.done .task-title { text-decoration: line-through; color: #6a7b71; }
+.actions button { font-size: 0.85rem; padding: 8px 12px; }
+#empty-state { padding: 32px 16px; border: 1px dashed #c4d4c9; border-radius: 12px; text-align: center; color: #586d63; }
+footer { margin-top: 26px; padding-top: 18px; border-top: 1px solid #e5ece7; font-size: 0.76rem; }
+/* hidden must win over any display rule, including Flexbox. */
+[hidden] { display: none !important; }
+/* Mobile responsiveness: stack controls instead of overflowing the screen. */
+@media (max-width: 480px) {
+  body { padding: 20px 12px; }
+  main { padding: 24px 18px; border-radius: 16px; }
+  #task-input { flex-basis: 100%; }
+  #save-button { flex: 1; }
+  li { grid-template-columns: 1fr; }
+  .actions { padding-left: 35px; }
+}

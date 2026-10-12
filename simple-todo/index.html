@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Makes the layout fit mobile screens. No CSS or JavaScript frameworks. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My To-Do List</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <!-- defer runs the script after the HTML has been read. -->
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">STUDY PLANNER</p>
+      <h1>My to-do list<span class="dot">.</span></h1>
+      <p>A little less to remember. Keep your study tasks in one place.</p>
+    </header>
+
+    <!-- CREATE and UPDATE share one form to keep the code short. -->
+    <form id="task-form">
+      <label for="task-input">What do you need to do?</label>
+      <div class="entry">
+        <input id="task-input" name="title" placeholder="e.g. Revise JavaScript functions"
+               maxlength="120" required autocomplete="off">
+        <button id="save-button" type="submit">Add task</button>
+        <button id="cancel-button" type="button" class="secondary" hidden>Cancel</button>
+      </div>
+      <button id="example-button" type="button" class="text-button">Try an example task</button>
+    </form>
+
+    <!-- Screen readers announce success and error messages without pop-ups. -->
+    <p id="message" role="status" aria-live="polite">Loading your tasks...</p>
+
+    <section aria-labelledby="list-heading">
+      <div class="list-heading">
+        <h2 id="list-heading">Your tasks</h2>
+        <p id="counter">Loading...</p>
+      </div>
+      <!-- READ: JavaScript inserts the saved tasks here. -->
+      <ul id="task-list"></ul>
+      <p id="empty-state" hidden>No tasks yet. Add one above to get started.</p>
+    </section>
+    <footer>One task at a time. Changes are saved on this server.</footer>
+  </main>
+
+  <!-- Reusable task row: cloning this avoids repeating HTML in JavaScript. -->
+  <template id="task-template">
+    <li>
+      <label class="task-label"><input type="checkbox"><span class="task-title"></span></label>
+      <div class="actions">
+        <button type="button" data-action="edit" class="secondary">Edit</button>
+        <button type="button" data-action="delete" class="delete">Delete</button>
+      </div>
+    </li>
+  </template>
+  <noscript>This to-do list needs JavaScript enabled in your browser.</noscript>
+</body>
+</html>
