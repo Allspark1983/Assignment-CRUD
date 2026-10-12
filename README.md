@@ -18,7 +18,7 @@ The source, tests and assessor guide are now uploaded to the `main` branch of **
    ```
 
 3. Open **port 3000** in your browser from the notification or **Ports** tab. Keep its visibility **Private**.
-4. Add your first task. Expand **How it works: REST API activity** to see requests and response statuses.
+4. Add your first task. To inspect the API requests for your assessment, use your browser's developer tools: **Network → Fetch/XHR**. The on-page API explanation and activity table have been removed; the REST API still handles all task operations.
 
 Requires Node.js 22 or later. There are no dependencies to install. On your own computer with Node installed, run the same command from the project folder and open `http://localhost:3000`. Stop the server with **Ctrl+C**.
 
@@ -28,7 +28,7 @@ Requires Node.js 22 or later. There are no dependencies to install. On your own 
 
 | File | What it does |
 | --- | --- |
-| `index.html` | Form, task list, counters, messages and an expandable API activity table. |
+| `index.html` | Form, task list, counters and messages. |
 | `style.css` | Desktop/mobile layout, buttons and visible keyboard-focus styles. |
 | `script.js` | DOM manipulation, events, arrays/objects, validation and asynchronous CRUD requests. |
 | `server.js` | JavaScript HTTP server, REST endpoints and JSON-file persistence. |
