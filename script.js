@@ -18,9 +18,8 @@ let tasks = [];
 let editingId = null;
 let busy = false;
 let hasLoaded = false;
-const requestLog = [];
 
-// 2. Small, reusable functions for messages, loading and API activity.
+// 2. Small, reusable functions for messages and loading.
 function showMessage(text, type = "info") {
   message.textContent = text;
   message.className = `message ${type}`;
@@ -34,35 +33,18 @@ function setBusy(value) {
   taskList.setAttribute("aria-busy", String(value));
   for (const button of taskList.querySelectorAll("button")) button.disabled = value;
 }
-function logRequest(method, endpoint, result) {
-  requestLog.unshift({ method, endpoint, result });
-  requestLog.splice(8); // Keep only the eight most recent requests.
-  const logBody = document.querySelector("#api-log");
-  logBody.replaceChildren();
-  for (const entry of requestLog) {
-    const row = document.createElement("tr");
-    for (const value of [entry.method, entry.endpoint, entry.result]) {
-      const cell = document.createElement("td");
-      cell.textContent = value;
-      row.appendChild(cell);
-    }
-    logBody.appendChild(row);
-  }
-}
 
 // 3. REST API: fetch sends a real HTTP request without reloading the page.
 async function requestTasks(path = "", method = "GET", data) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   const options = { method, headers: { Accept: "application/json" }, signal: controller.signal };
-  let result = "Network error";
   if (data !== undefined) {
     options.headers["Content-Type"] = "application/json";
     options.body = JSON.stringify(data);
   }
   try {
     const response = await fetch(API_URL + path, options);
-    result = String(response.status);
     if (response.status !== 204 && !response.headers.get("content-type")?.includes("application/json")) {
       throw new Error("API not found. Run npm start and open port 3000, not Live Server or GitHub Pages.");
     }
@@ -81,7 +63,6 @@ async function requestTasks(path = "", method = "GET", data) {
     throw error;
   } finally {
     clearTimeout(timeout);
-    logRequest(method, API_URL + path, result);
   }
 }
 function createTask(task) { return requestTasks("", "POST", task); }
