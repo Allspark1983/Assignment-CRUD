@@ -1,16 +1,14 @@
 "use strict";
 
 /*
- * STUDY TASK TRACKER - FRONTEND ASSESSMENT COMMENTS
- * Based on the marking areas in Agile assignments.pdf.
- * Follow the app in this order: user event -> API request -> tasks array -> HTML.
- * The REQUIREMENT comments identify evidence to explain, not guaranteed marks.
- * HTML and CSS provide the interface; this file uses vanilla JavaScript only.
+ * STUDY TASK TRACKER - HOW THE FRONTEND WORKS
+ * User action -> event handler -> REST API -> task array -> updated HTML.
+ * This is vanilla JavaScript: no frontend framework is used.
+ * Assessment comments refer to Agile assignments.pdf, not guaranteed marks.
  */
 
-// 1. REQUIREMENT: DOM selection and manipulation.
-// querySelector finds an HTML element. # selects its unique ID.
-// These variables let later functions read inputs and change the page.
+// 1. FIND THE HTML ELEMENTS
+// querySelector uses # to find an element by its ID so we can read/change it.
 const taskForm = document.querySelector("#task-form");
 const titleInput = document.querySelector("#task-title");
 const saveButton = document.querySelector("#save-button");
@@ -24,30 +22,26 @@ const emptyState = document.querySelector("#empty-state");
 const deleteDialog = document.querySelector("#delete-dialog");
 const deleteTaskTitle = document.querySelector("#delete-task-title");
 
-// REQUIREMENT: at least one ARRAY and one OBJECT.
-// tasks is an array. Each saved task is an object with id, title and completed.
-// Example only: { id: "example-id", title: "Revise HTML", completed: false }.
-// This array is the browser's working copy; the server saves the records.
-// API_URL names the task collection. Adding /id selects one task.
-const API_URL = "/api/tasks";
-let tasks = [];
-// null means we are adding; a saved task ID means we are editing.
-let editingId = null;
-// These boolean flags track a request in progress and the first successful load.
-let busy = false;
-let hasLoaded = false;
+// 2. KEEP TRACK OF THE CURRENT STATE
+const API_URL = "/api/tasks"; // Address of our task collection on server.js.
+let tasks = [];             // ARRAY of task OBJECTS: { id, title, completed }.
+let editingId = null;       // null = adding; a task ID = editing that task.
+let busy = false;           // true while a request or confirmation is in progress.
+let hasLoaded = false;      // Becomes true after the first successful GET.
 
-// 2. REQUIREMENT: custom functions and structured programming.
-// Each function has one clear job and is called when needed.
-// DOM evidence: textContent changes a message; className changes its styling.
+// 3. GIVE FEEDBACK TO THE USER
+
+// Show a message and choose its info/success/error appearance.
+// DOM requirement: textContent changes text; className selects CSS styling.
 function showMessage(text, type = "info") {
   message.textContent = text;
   message.className = `message ${type}`;
 }
-// DOM evidence: disabled changes whether the form button can be used.
-// Along with textContent and titleInput.value in startEditing(), this shows
-// three different properties across at least two DOM elements.
-// || means OR; ! means NOT. Block input while loading or before the first load.
+
+// Disable controls while busy to reduce duplicate actions.
+// || means OR and ! means NOT: also block entry until tasks have loaded.
+// DOM evidence: disabled here, textContent above and value in startEditing()
+// demonstrate three different properties across more than one element.
 function setBusy(value) {
   busy = value;
   titleInput.disabled = value || !hasLoaded;
@@ -55,66 +49,97 @@ function setBusy(value) {
   cancelButton.disabled = value;
   refreshButton.disabled = value;
   taskList.setAttribute("aria-busy", String(value));
-  for (const button of taskList.querySelectorAll("button")) button.disabled = value;
+
+  for (const button of taskList.querySelectorAll("button")) {
+    button.disabled = value;
+  }
 }
 
-// 3. REQUIREMENT: asynchronous calls, JSON, and AJAX GET plus a write request.
-// fetch sends a real HTTP request to server.js without reloading the webpage.
-// async/await waits for the response in this function without freezing the page.
-// One helper is reused for GET, POST, PATCH and DELETE.
+// 4. COMMUNICATE WITH THE REST API
+
+// Send an HTTP request and return the server's data, or throw an error.
+// path chooses a task, method chooses an action, data is an optional object.
+// Assessment: asynchronous AJAX requests using fetch, async/await and JSON.
 async function requestTasks(path = "", method = "GET", data) {
-  // Stop waiting after 10 seconds so a failed connection does not leave controls busy forever.
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
-  const options = { method, headers: { Accept: "application/json" }, signal: controller.signal };
+  const options = {
+    method,
+    headers: { Accept: "application/json" },
+    signal: controller.signal
+  };
+
+  // POST and PATCH carry JSON text in the request body.
   if (data !== undefined) {
     options.headers["Content-Type"] = "application/json";
-    // Convert a JavaScript object into JSON text for POST or PATCH.
     options.body = JSON.stringify(data);
   }
+
   try {
+    // await waits here without freezing the whole webpage.
     const response = await fetch(API_URL + path, options);
+
     if (response.status !== 204 && !response.headers.get("content-type")?.includes("application/json")) {
       throw new Error("API not found. Run npm start and open port 3000, not Live Server or GitHub Pages.");
     }
-    // response.json() reads JSON response text into JavaScript data.
-    // Our DELETE returns 204 No Content, so there is no JSON body to read.
+
+    // Read JSON into JavaScript data. Our DELETE returns no body (status 204).
     const body = response.status === 204 ? null : await response.json();
-    // fetch can receive an HTTP error response; check ok before treating it as success.
-    if (!response.ok) throw new Error(body?.error || `Request failed (${response.status}).`);
+
+    // An HTTP error can still produce a fetch response, so check response.ok.
+    if (!response.ok) {
+      throw new Error(body?.error || `Request failed (${response.status}).`);
+    }
+
     apiStatus.textContent = "API connected";
     apiStatus.className = "connection online";
     return body;
   } catch (error) {
     apiStatus.textContent = "Request failed";
     apiStatus.className = "connection offline";
+
     if (error.name === "AbortError" || error instanceof TypeError) {
       throw new Error("Could not reach the API. Check that npm start is running. Reload tasks to check whether your last change was saved before retrying.");
     }
-    throw error;
+
+    throw error; // Let the calling handler display the error message.
   } finally {
-    // finally runs on success or failure: always clear the timer.
-    clearTimeout(timeout);
+    clearTimeout(timeout); // Clean up the timer on success or failure.
   }
 }
-// CRUD - CREATE: POST /api/tasks sends a new task object to the server.
-function createTask(task) { return requestTasks("", "POST", task); }
-// CRUD - UPDATE: PATCH /api/tasks/:id changes only the supplied fields.
-function updateTask(id, changes) { return requestTasks(`/${encodeURIComponent(id)}`, "PATCH", changes); }
-// CRUD - DELETE: DELETE /api/tasks/:id removes one saved record.
-function deleteTask(id) { return requestTasks(`/${encodeURIComponent(id)}`, "DELETE"); }
-// CRUD - READ: GET /api/tasks fetches every saved task as a JSON array.
+
+// CREATE: POST a task object and return a Promise for the saved object.
+function createTask(task) {
+  return requestTasks("", "POST", task);
+}
+
+// UPDATE: PATCH only the supplied fields of the task with this ID.
+function updateTask(id, changes) {
+  return requestTasks(`/${encodeURIComponent(id)}`, "PATCH", changes);
+}
+
+// DELETE: remove one saved task. Confirmation is handled separately below.
+function deleteTask(id) {
+  return requestTasks(`/${encodeURIComponent(id)}`, "DELETE");
+}
+
+// READ: GET every saved task, store the array and display it.
+// This is a server request, not a read from localStorage.
 async function loadTasks() {
-  const data = await requestTasks(); // GET /api/tasks
-  if (!Array.isArray(data)) throw new Error("The API did not return a task array.");
+  const data = await requestTasks(); // Defaults to GET /api/tasks.
+
+  if (!Array.isArray(data)) {
+    throw new Error("The API did not return a task array.");
+  }
+
   tasks = data;
   hasLoaded = true;
   renderTasks();
 }
 
-// 4. REQUIREMENT: display all created records using DOM manipulation.
-// Rendering means drawing the current task array on the page, not saving it.
-// makeButton returns a new HTML button for renderTasks() to attach.
+// 5. DISPLAY THE TASKS
+
+// Build and return one button. data-action tells the click handler its job.
 function makeButton(label, action, className) {
   const button = document.createElement("button");
   button.type = "button";
@@ -124,26 +149,35 @@ function makeButton(label, action, className) {
   button.disabled = busy;
   return button;
 }
+
+// Rebuild the visible list and counters from the current array.
+// Rendering changes HTML; it does not create or delete server records.
+// Assessment: DOM manipulation, a loop, branching and displaying all records.
 function renderTasks() {
-  // Clear only the displayed list before rebuilding it; saved tasks are not deleted.
   taskList.replaceChildren();
   let completed = 0;
-  // REQUIREMENT: loop and branching. Visit each task and count completed ones.
+
   for (const task of tasks) {
-    if (task.completed) completed++;
+    if (task.completed) {
+      completed++;
+    }
+
     const item = document.createElement("li");
     item.className = task.completed ? "task-card is-completed" : "task-card";
-    // Keep the record ID on the list item so clicks can find the correct task.
-    item.dataset.id = task.id;
+    item.dataset.id = task.id; // Connect the displayed card to its saved record.
+
     const top = document.createElement("div");
     top.className = "task-top";
+
     const title = document.createElement("h3");
     title.className = "task-title";
-    title.textContent = task.title; // Display user text safely, not as HTML.
+    title.textContent = task.title; // Display user input as text, never as HTML.
+
     const status = document.createElement("span");
     status.className = "task-status";
     status.textContent = task.completed ? "Completed" : "Pending";
     top.append(title, status);
+
     const actions = document.createElement("div");
     actions.className = "task-actions";
     actions.append(
@@ -151,11 +185,11 @@ function renderTasks() {
       makeButton("Edit", "edit", "secondary"),
       makeButton("Delete", "delete", "danger")
     );
+
     item.append(top, actions);
-    // appendChild attaches the finished task card to the visible list.
-    taskList.appendChild(item);
+    taskList.appendChild(item); // Attach the completed card to the page.
   }
-  // UI/UX: update all three counters so students can see their progress.
+
   document.querySelector("#total-count").textContent = tasks.length;
   document.querySelector("#completed-count").textContent = completed;
   document.querySelector("#pending-count").textContent = tasks.length - completed;
@@ -164,13 +198,18 @@ function renderTasks() {
   document.querySelector("#empty-description").textContent = "Add your first study task using the form.";
 }
 
-// 5. REQUIREMENT: structured functions and creating/updating a resource.
-// readTaskForm returns an OBJECT, rather than saving anything itself.
-// trim removes spaces at the start/end; a new task starts as incomplete.
+// 6. READ AND RESET THE FORM
+
+// Return a new task OBJECT. trim removes spaces at the beginning and end.
+// A new task starts as pending; this function does not send an API request.
 function readTaskForm() {
-  return { title: titleInput.value.trim(), completed: false };
+  return {
+    title: titleInput.value.trim(),
+    completed: false
+  };
 }
-// Return the form to Add mode after saving or cancelling an edit.
+
+// Clear the input and return the shared form to Add mode.
 function resetForm() {
   editingId = null;
   taskForm.reset();
@@ -178,8 +217,8 @@ function resetForm() {
   saveButton.textContent = "Add task";
   cancelButton.hidden = true;
 }
-// CRUD - UPDATE preparation: copy the selected task title into the same form.
-// DOM evidence: assigning value changes the input; no API write happens yet.
+
+// Fill the form with an existing task. Saving later sends the PATCH request.
 function startEditing(task) {
   editingId = task.id;
   titleInput.value = task.title;
@@ -190,119 +229,170 @@ function startEditing(task) {
   titleInput.focus();
 }
 
-// 6. REQUIREMENT: event handler 1 - the form's submit event.
-// This runs when the user clicks Add task / Save changes or presses Enter.
-taskForm.addEventListener("submit", async (event) => {
-  // Prevent normal form navigation; our asynchronous JavaScript handles the save.
+// 7. HANDLE FORM SUBMISSION - EVENT HANDLER 1
+
+// Add or edit a task when the form is submitted by button or Enter key.
+// preventDefault stops normal form navigation so our AJAX can handle the save.
+async function handleTaskSubmit(event) {
   event.preventDefault();
-  if (busy) return;
-  // REQUIREMENT: comparison (===) and branching (if). Reject spaces-only titles.
+
+  if (busy) {
+    return;
+  }
+
+  // Assessment: comparison operator and branching. Reject spaces-only names.
   if (titleInput.value.trim().length === 0) {
     showMessage("Please enter a task name, not just spaces.", "error");
     titleInput.focus();
     return;
   }
+
   setBusy(true);
   const isEditing = editingId !== null;
+
   try {
     if (isEditing) {
       const saved = await updateTask(editingId, { title: titleInput.value.trim() });
-      // map replaces the matching object with the server response; other tasks stay the same.
+      // map replaces the edited object and keeps the other tasks unchanged.
       tasks = tasks.map((task) => task.id === saved.id ? saved : task);
     } else {
-      // REQUIREMENT: one function's return value becomes another function's argument.
-      // readTaskForm() returns the object; createTask(...) receives and sends it.
+      // Assessment: a function's return value is another function's argument.
+      // readTaskForm returns the object that createTask receives and POSTs.
       const saved = await createTask(readTaskForm());
-      // Add the saved object to the front of the array only after POST succeeds.
-      tasks.unshift(saved);
+      tasks.unshift(saved); // Add to the array only after the server confirms it.
     }
+
     resetForm();
     renderTasks();
     showMessage(isEditing ? "Task updated." : "Task added. You have a plan!", "success");
   } catch (error) {
-    showMessage(error.message, "error"); // Preserve the user's text for a retry.
+    showMessage(error.message, "error"); // Leave the entered text for a retry.
   } finally {
     setBusy(false);
     titleInput.focus();
   }
-});
+}
 
-// 7. UI/UX: confirm destructive actions in the app's own dialog.
-// This Promise resolves to true only when the dialog returns "delete".
-// Opening the dialog is not an API call and does not remove the task.
+// 8. CONFIRM AND HANDLE TASK ACTIONS - EVENT HANDLER 2
+
+// Open our in-page dialog and return a Promise for true (delete) or false.
+// This function only asks permission; it does not delete anything itself.
 function confirmTaskDeletion(task) {
   return new Promise((resolve) => {
     deleteTaskTitle.textContent = task.title;
-    deleteDialog.returnValue = "cancel"; // Escape must never reuse an earlier approval.
+    deleteDialog.returnValue = "cancel"; // Escape cannot reuse a previous approval.
     deleteDialog.addEventListener("close", () => {
       resolve(deleteDialog.returnValue === "delete");
     }, { once: true });
-    deleteDialog.showModal(); // Keeps focus inside the dialog; Cancel is focused first.
+    deleteDialog.showModal(); // Keep focus inside; Cancel is focused first.
   });
 }
 
-// 8. REQUIREMENT: event handler 2 - clicks on the task list.
-// Event delegation: the parent list handles clicks from buttons created later.
-// data-action says which action to take; data-id identifies the saved record.
-taskList.addEventListener("click", async (event) => {
+// Handle Edit, Mark completed/pending and Delete using one parent listener.
+// This is event delegation: buttons created by renderTasks need no new listeners.
+async function handleTaskClick(event) {
   const button = event.target.closest("button[data-action]");
-  if (!button || busy) return;
+
+  if (!button || busy) {
+    return;
+  }
+
   const id = button.closest("li").dataset.id;
   const task = tasks.find((item) => item.id === id);
-  if (!task) return;
+
+  if (!task) {
+    return;
+  }
+
   const action = button.dataset.action;
-  if (action === "edit") { startEditing(task); return; }
+
+  if (action === "edit") {
+    startEditing(task);
+    return;
+  }
+
   setBusy(true);
+
   try {
     if (action === "toggle") {
-      // PATCH toggles the boolean: marking completed is an UPDATE, not a DELETE.
+      // ! reverses true/false. Completing a task is an UPDATE, not a deletion.
       const saved = await updateTask(id, { completed: !task.completed });
       tasks = tasks.map((item) => item.id === id ? saved : item);
       showMessage(saved.completed ? "Task completed. Nice work!" : "Task marked as pending.", "success");
     } else if (action === "delete") {
       const confirmed = await confirmTaskDeletion(task);
-      if (!confirmed) return; // Cancel or Escape: do not send a DELETE request.
+
+      if (!confirmed) {
+        return; // Cancel/Escape sends no DELETE request; finally still runs.
+      }
+
       await deleteTask(id);
-      // After server success, filter creates an array without the deleted task.
-      tasks = tasks.filter((item) => item.id !== id);
-      if (editingId === id) resetForm();
+      tasks = tasks.filter((item) => item.id !== id); // Remove after server success.
+
+      if (editingId === id) {
+        resetForm();
+      }
+
       showMessage("Task deleted.", "success");
     }
+
     renderTasks();
   } catch (error) {
     showMessage(error.message, "error");
   } finally {
     setBusy(false);
     const row = [...taskList.children].find((item) => item.dataset.id === id);
-    if (row) row.querySelector(`button[data-action="${action}"]`).focus();
-    else titleInput.focus();
+
+    if (row) {
+      row.querySelector(`button[data-action="${action}"]`).focus();
+    } else {
+      titleInput.focus();
+    }
   }
-});
-// Extra event handler: cancel editing locally without changing the saved record.
-cancelButton.addEventListener("click", () => {
+}
+
+// Cancel editing without changing the server's saved record.
+function handleCancelEdit() {
   resetForm();
   showMessage("Edit cancelled. Your saved task was not changed.");
   titleInput.focus();
-});
-// 9. READ again on page load or Reload tasks.
-// Fetch the saved records, redraw the list, and show success or an error.
-// This demonstrates persistence by reading the server again, not localStorage.
+}
+
+// Fetch the list again on page load or Reload tasks; always restore controls.
 async function refreshTasks() {
-  if (busy) return;
+  if (busy) {
+    return;
+  }
+
   setBusy(true);
   showMessage("Loading your tasks…");
+
   try {
     await loadTasks();
-    if (editingId !== null && !tasks.some((task) => task.id === editingId)) resetForm();
+
+    if (editingId !== null && !tasks.some((task) => task.id === editingId)) {
+      resetForm();
+    }
+
     showMessage("Tasks loaded from the REST API.", "success");
   } catch (error) {
     showMessage(error.message, "error");
+
     if (!hasLoaded) {
       document.querySelector("#empty-heading").textContent = "The API is not available yet.";
       document.querySelector("#empty-description").textContent = "Run npm start, open port 3000, then choose Reload tasks.";
     }
-  } finally { setBusy(false); }
+  } finally {
+    setBusy(false);
+  }
 }
-// Pass the function to the click listener; do not call it until the button is clicked.
+
+// 9. CONNECT THE EVENTS AND START THE APP
+// Pass function names without () so they run when the event happens.
+// Assessment: at least two handlers - submit and click - are connected here.
+taskForm.addEventListener("submit", handleTaskSubmit);
+taskList.addEventListener("click", handleTaskClick);
+cancelButton.addEventListener("click", handleCancelEdit);
 refreshButton.addEventListener("click", refreshTasks);
+
 refreshTasks(); // Initial asynchronous GET when the page opens.
