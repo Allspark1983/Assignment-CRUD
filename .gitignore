@@ -1,0 +1,8 @@
+# Personal task data is created at runtime, never committed.
+data/
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
