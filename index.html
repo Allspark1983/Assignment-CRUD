@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A simple study task tracker built with vanilla JavaScript and a REST API.">
+  <title>Study Task Tracker</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to tasks</a>
+  <header class="site-header">
+    <div class="brand"><span class="brand-icon" aria-hidden="true">✓</span> Study Task Tracker</div>
+    <span id="api-status" class="connection" role="status">Connecting to API…</span>
+  </header>
+  <main id="main" class="container">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">YOUR STUDY SPACE</p>
+      <h1 id="page-title">One task at a time.</h1>
+      <p>Add what you need to study. Keep track of what you finish.</p>
+    </section>
+    <section class="stats" aria-label="Task summary">
+      <div class="stat"><span>Total tasks</span><strong id="total-count">—</strong></div>
+      <div class="stat"><span>Still to do</span><strong id="pending-count">—</strong></div>
+      <div class="stat"><span>Completed</span><strong id="completed-count">—</strong></div>
+    </section>
+    <p id="message" class="message" role="status" aria-live="polite">Loading your tasks…</p>
+    <div class="workspace">
+      <section class="panel form-panel" aria-labelledby="form-heading">
+        <p class="eyebrow">01 / PLAN</p>
+        <h2 id="form-heading">Add a study task</h2>
+        <p class="muted">Start with something small and specific.</p>
+        <form id="task-form">
+          <label for="task-title">What do you need to study?</label>
+          <input id="task-title" name="title" type="text" maxlength="100" required
+                 placeholder="e.g. Revise JavaScript functions" aria-describedby="title-hint" disabled>
+          <p id="title-hint" class="hint">Up to 100 characters. New tasks start as pending.</p>
+          <div class="form-actions">
+            <button id="save-button" class="button primary" type="submit" disabled>Add task</button>
+            <button id="cancel-button" class="button secondary" type="button" hidden>Cancel edit</button>
+          </div>
+        </form>
+        <div class="tip"><strong>A simple routine</strong><p>Add a task, study, then mark it completed. You can edit or delete a task at any time.</p></div>
+      </section>
+      <section class="panel list-panel" aria-labelledby="list-heading">
+        <div class="section-header">
+          <div><p class="eyebrow">02 / MAKE PROGRESS</p><h2 id="list-heading">Your study tasks</h2></div>
+          <button id="refresh-button" class="button secondary small" type="button">Reload tasks</button>
+        </div>
+        <div id="empty-state" class="empty-state">
+          <span class="empty-icon" aria-hidden="true">✓</span>
+          <h3 id="empty-heading">Loading your tasks…</h3>
+          <p id="empty-description">Waiting for the REST API.</p>
+        </div>
+        <ul id="task-list" class="task-list" aria-label="Study tasks"></ul>
+      </section>
+    </div>
+    <details class="api-panel">
+      <summary>How it works: REST API activity</summary>
+      <p class="muted">Actual requests from this page. GET reads, POST creates, PATCH updates, and DELETE removes a task. The latest eight requests appear below.</p>
+      <table>
+        <caption class="sr-only">Recent REST API requests</caption>
+        <thead><tr><th scope="col">Method</th><th scope="col">Endpoint</th><th scope="col">Result</th></tr></thead>
+        <tbody id="api-log"><tr><td colspan="3">No completed requests yet.</td></tr></tbody>
+      </table>
+      <p><a href="/api/tasks" target="_blank" rel="noopener">View task data as JSON <span class="sr-only">(opens a new tab)</span>↗</a></p>
+    </details>
+    <noscript><p class="message error">Enable JavaScript to use the tracker.</p></noscript>
+  </main>
+  <footer>Built with HTML, CSS &amp; vanilla JavaScript · One resource. Four CRUD actions.</footer>
+</body>
+</html>
