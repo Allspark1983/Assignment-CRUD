@@ -59,6 +59,19 @@
     </div>
     <noscript><p class="message error">Enable JavaScript to use the tracker.</p></noscript>
   </main>
+  <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-dialog-title"
+          aria-describedby="delete-dialog-message delete-task-title delete-dialog-warning">
+    <form method="dialog">
+      <h2 id="delete-dialog-title">Delete this task?</h2>
+      <p id="delete-dialog-message" class="muted">Are you sure you want to delete:</p>
+      <p id="delete-task-title" class="confirm-task-title"></p>
+      <p id="delete-dialog-warning" class="muted">This cannot be undone.</p>
+      <div class="dialog-actions">
+        <button class="button secondary" type="submit" value="cancel" autofocus>Cancel</button>
+        <button class="button danger" type="submit" value="delete">Delete task</button>
+      </div>
+    </form>
+  </dialog>
   <footer>Built with HTML, CSS &amp; vanilla JavaScript · One resource. Four CRUD actions.</footer>
 </body>
 </html>
