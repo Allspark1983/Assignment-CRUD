@@ -11,6 +11,8 @@ const taskList = document.querySelector("#task-list");
 const message = document.querySelector("#message");
 const apiStatus = document.querySelector("#api-status");
 const emptyState = document.querySelector("#empty-state");
+const deleteDialog = document.querySelector("#delete-dialog");
+const deleteTaskTitle = document.querySelector("#delete-task-title");
 
 // One ARRAY holds our task OBJECTS. The server is the saved source of truth.
 const API_URL = "/api/tasks";
@@ -173,6 +175,18 @@ taskForm.addEventListener("submit", async (event) => {
   }
 });
 
+// Ask inside our page instead of opening a browser-controlled popup.
+function confirmTaskDeletion(task) {
+  return new Promise((resolve) => {
+    deleteTaskTitle.textContent = task.title;
+    deleteDialog.returnValue = "cancel"; // Escape must never reuse an earlier approval.
+    deleteDialog.addEventListener("close", () => {
+      resolve(deleteDialog.returnValue === "delete");
+    }, { once: true });
+    deleteDialog.showModal(); // Keeps focus inside the dialog; Cancel is focused first.
+  });
+}
+
 // Event handler 2: one click listener handles every generated task's buttons.
 taskList.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]");
@@ -182,7 +196,6 @@ taskList.addEventListener("click", async (event) => {
   if (!task) return;
   const action = button.dataset.action;
   if (action === "edit") { startEditing(task); return; }
-  if (action === "delete" && !window.confirm(`Delete "${task.title}"? This cannot be undone.`)) return;
   setBusy(true);
   try {
     if (action === "toggle") {
@@ -190,6 +203,8 @@ taskList.addEventListener("click", async (event) => {
       tasks = tasks.map((item) => item.id === id ? saved : item);
       showMessage(saved.completed ? "Task completed. Nice work!" : "Task marked as pending.", "success");
     } else if (action === "delete") {
+      const confirmed = await confirmTaskDeletion(task);
+      if (!confirmed) return; // Cancel or Escape: do not send a DELETE request.
       await deleteTask(id);
       tasks = tasks.filter((item) => item.id !== id);
       if (editingId === id) resetForm();
@@ -201,7 +216,7 @@ taskList.addEventListener("click", async (event) => {
   } finally {
     setBusy(false);
     const row = [...taskList.children].find((item) => item.dataset.id === id);
-    if (row) row.querySelector("button").focus();
+    if (row) row.querySelector(`button[data-action="${action}"]`).focus();
     else titleInput.focus();
   }
 });
