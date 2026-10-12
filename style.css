@@ -1,101 +1,575 @@
-:root {
-  --bg: #f6f7fb; --surface: #ffffff; --ink: #19243a; --muted: #5b6578;
-  --border: #dce1ed; --accent: #4d48c8; --accent-dark: #383499;
-  --soft: #eeedff; --success: #216348; --danger: #a1263a;
-}
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
-button, input { font: inherit; }
-button, a, input { -webkit-tap-highlight-color: transparent; }
-button { cursor: pointer; }
-button:disabled { opacity: 0.55; cursor: wait; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
-a { color: var(--accent); text-underline-offset: 3px; }
-h1, h2, h3, p { margin-top: 0; }
-h2 { margin-bottom: 8px; font-size: 1.3rem; line-height: 1.3; }
-.site-header { max-width: 1200px; padding: 24px 32px; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-.brand { display: flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 750; }
-.brand-icon { width: 34px; height: 34px; display: grid; place-items: center; background: var(--accent); color: white; border-radius: 10px; }
-.connection { font-size: 0.8rem; color: var(--muted); background: #e9edf4; border-radius: 30px; padding: 5px 12px; }
-.connection.online { color: var(--success); background: #e3f3e9; }
-.connection.offline { color: var(--danger); background: #fce8eb; }
-.container { width: min(1100px, calc(100% - 48px)); margin: 18px auto 0; }
-.intro { margin-bottom: 28px; }
-.eyebrow { font-size: 0.7rem; font-weight: 750; letter-spacing: 0.13em; color: var(--accent); margin-bottom: 10px; }
-h1 { font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -0.045em; line-height: 1.15; margin-bottom: 12px; }
-.intro > p:last-child, .muted { color: var(--muted); }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.stat { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 22px; }
-.stat span { font-size: 0.9rem; color: var(--muted); }
-.stat strong { font-size: 1.75rem; line-height: 1.2; }
-.message { font-size: 0.9rem; margin: 18px 0; padding: 10px 14px; border-radius: 9px; background: #eaeef6; color: var(--ink); overflow-wrap: anywhere; }
-.message.success { background: #e5f3eb; color: var(--success); }
-.message.error { background: #fce8eb; color: var(--danger); }
-.workspace { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.35fr); gap: 22px; align-items: start; }
-.panel { border: 1px solid var(--border); background: var(--surface); border-radius: 18px; padding: 26px; min-width: 0; }
-.form-panel .muted { font-size: 0.9rem; margin-bottom: 24px; }
-label { display: block; font-size: 0.88rem; font-weight: 650; margin-bottom: 8px; }
-input { width: 100%; min-height: 48px; border: 1px solid #b8c0d1; border-radius: 9px; padding: 10px 12px; background: white; color: var(--ink); }
-input::placeholder { color: #697387; font-size: 0.84rem; }
-.hint { color: var(--muted); font-size: 0.76rem; margin: 8px 0 18px; }
-.form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.button { min-height: 44px; border: 1px solid transparent; border-radius: 9px; padding: 9px 16px; font-size: 0.86rem; font-weight: 650; transition: background-color 120ms ease; }
-.primary { color: white; background: var(--accent); }
-.primary:hover:not(:disabled) { background: var(--accent-dark); }
-.secondary { background: white; border-color: var(--border); color: var(--ink); }
-.secondary:hover:not(:disabled) { background: var(--bg); }
-.small { padding: 8px 12px; font-size: 0.78rem; }
-.danger { color: var(--danger); background: #fff5f6; border-color: #efcbd2; }
-.danger:hover:not(:disabled) { background: #fce8eb; }
-.tip { border-top: 1px solid var(--border); padding-top: 20px; margin-top: 28px; font-size: 0.83rem; }
-.tip p { color: var(--muted); margin: 5px 0 0; }
-.section-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
-.section-header h2 { margin-bottom: 0; }
-.empty-state { text-align: center; padding: 38px 10px; color: var(--muted); }
-.empty-icon { display: grid; place-items: center; width: 50px; height: 50px; margin: 0 auto 16px; border-radius: 16px; background: var(--soft); color: var(--accent); font-size: 1.6rem; }
-.empty-state h3 { color: var(--ink); font-size: 1.1rem; margin-bottom: 6px; }
-.empty-state p { font-size: 0.88rem; margin-bottom: 0; }
-.task-list { padding: 0; margin: 0; list-style: none; }
-.task-card { padding: 20px 0; border-top: 1px solid var(--border); }
-.task-card:last-child { padding-bottom: 0; }
-.task-top { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
-.task-title { font-size: 1rem; font-weight: 650; margin-bottom: 12px; overflow-wrap: anywhere; min-width: 0; }
-.task-card.is-completed .task-title { text-decoration: line-through; color: var(--muted); }
-.task-status { font-size: 0.7rem; font-weight: 650; padding: 3px 9px; border-radius: 20px; background: #fff2d6; color: #785400; white-space: nowrap; }
-.is-completed .task-status { background: #e3f3e9; color: var(--success); }
-.task-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.task-actions .toggle-button { background: var(--soft); color: var(--accent-dark); }
-.api-panel { margin-top: 24px; border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; background: white; }
-summary { cursor: pointer; font-size: 0.88rem; font-weight: 650; }
-.api-panel p { font-size: 0.8rem; margin: 14px 0 0; }
-table { width: 100%; border-collapse: collapse; margin-top: 16px; table-layout: fixed; font-size: 0.75rem; }
-th, td { text-align: left; border-bottom: 1px solid var(--border); padding: 9px 4px; vertical-align: top; overflow-wrap: anywhere; }
-th:first-child { width: 22%; }
-th:last-child { width: 22%; }
-footer { text-align: center; color: var(--muted); padding: 28px 24px; font-size: 0.73rem; }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-.skip-link { position: absolute; top: -100px; left: 12px; padding: 8px 14px; background: white; z-index: 2; }
-.skip-link:focus { top: 12px; }
-@media (max-width: 760px) {
-  .workspace { grid-template-columns: 1fr; }
-  .site-header { padding: 20px 24px; }
-  .stat { flex-direction: column; align-items: start; padding: 14px; }
-  .stat span { font-size: 0.8rem; }
-}
-@media (max-width: 420px) {
-  .container { width: calc(100% - 32px); }
-  .site-header { padding: 16px; align-items: start; flex-direction: column; gap: 10px; }
-  .panel { padding: 20px; }
-  .stats { gap: 8px; }
-  .stat { padding: 12px 10px; }
-  .stat span { font-size: 0.71rem; }
-  .task-top { flex-direction: column; gap: 0; margin-bottom: 12px; }
-  .task-title { margin-bottom: 6px; }
-}
-@media (prefers-reduced-motion: reduce) { .button { transition: none; } }
+/*
+ * STUDY TASK TRACKER - APPEARANCE AND RESPONSIVE LAYOUT
+ * Plain CSS: no styling framework is required.
+ * Functionality is in script.js; these rules control how its HTML looks.
+ * Assessment: a usable interface and a layout that fits a mobile device.
+ */
 
-/* In-page delete confirmation, without the browser's site-name heading. */
+/* Shared colours keep the page consistent. var(--accent) reuses a value below. */
+:root {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --ink: #19243a;
+  --muted: #5b6578;
+  --border: #dce1ed;
+  --accent: #4d48c8;
+  --accent-dark: #383499;
+  --soft: #eeedff;
+  --success: #216348;
+  --danger: #a1263a;
+}
+
+/* Include padding and borders within an element's specified width. */
+* {
+  box-sizing: border-box;
+}
+
+/* JavaScript uses hidden to show/hide the empty state and Cancel edit button. */
+[hidden] {
+  display: none !important;
+}
+
+/* Set the page background, readable font, text colour and line spacing. */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+}
+
+button, input {
+  font: inherit;
+}
+
+button, a, input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Visually identify controls that setBusy() has temporarily disabled. */
+button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* Show keyboard users which input, link or button currently has focus. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+h1, h2, h3, p {
+  margin-top: 0;
+}
+
+h2 {
+  margin-bottom: 8px;
+  font-size: 1.3rem;
+  line-height: 1.3;
+}
+
+/* HEADER: Flexbox separates the app name and its API connection indicator. */
+.site-header {
+  max-width: 1200px;
+  padding: 24px 32px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.brand-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: white;
+  border-radius: 10px;
+}
+
+/* The connection indicator changes appearance through its online/offline class. */
+.connection {
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: #e9edf4;
+  border-radius: 30px;
+  padding: 5px 12px;
+}
+
+.connection.online {
+  color: var(--success);
+  background: #e3f3e9;
+}
+
+.connection.offline {
+  color: var(--danger);
+  background: #fce8eb;
+}
+
+/* Limit desktop width, but leave margins at the sides of smaller screens. */
+.container {
+  width: min(1100px, calc(100% - 48px));
+  margin: 18px auto 0;
+}
+
+.intro {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+  margin-bottom: 12px;
+}
+
+.intro > p:last-child, .muted {
+  color: var(--muted);
+}
+
+/* SUMMARY: place the three task counters into equal-width grid columns. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 22px;
+}
+
+.stat span {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.stat strong {
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+/* FEEDBACK: showMessage() switches classes for info, success or error feedback. */
+.message {
+  font-size: 0.9rem;
+  margin: 18px 0;
+  padding: 10px 14px;
+  border-radius: 9px;
+  background: #eaeef6;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.message.success {
+  background: #e5f3eb;
+  color: var(--success);
+}
+
+.message.error {
+  background: #fce8eb;
+  color: var(--danger);
+}
+
+/* MAIN LAYOUT: put the form and task list side by side on desktop. */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.35fr);
+  gap: 22px;
+  align-items: start;
+}
+
+/* Give both main sections a white surface, border, rounded corners and spacing. */
+.panel {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 26px;
+  min-width: 0;
+}
+
+.form-panel .muted {
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+/* FORM: label and input styles make it clear where to enter a study task. */
+label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+
+input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #b8c0d1;
+  border-radius: 9px;
+  padding: 10px 12px;
+  background: white;
+  color: var(--ink);
+}
+
+input::placeholder {
+  color: #697387;
+  font-size: 0.84rem;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.76rem;
+  margin: 8px 0 18px;
+}
+
+/* Let form buttons wrap when the available width is small. */
+.form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* SHARED BUTTONS: common sizing; primary/secondary/danger choose the purpose. */
+.button {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 9px 16px;
+  font-size: 0.86rem;
+  font-weight: 650;
+  transition: background-color 120ms ease;
+}
+
+.primary {
+  color: white;
+  background: var(--accent);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.secondary {
+  background: white;
+  border-color: var(--border);
+  color: var(--ink);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.small {
+  padding: 8px 12px;
+  font-size: 0.78rem;
+}
+
+.danger {
+  color: var(--danger);
+  background: #fff5f6;
+  border-color: #efcbd2;
+}
+
+.danger:hover:not(:disabled) {
+  background: #fce8eb;
+}
+
+.tip {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  margin-top: 28px;
+  font-size: 0.83rem;
+}
+
+.tip p {
+  color: var(--muted);
+  margin: 5px 0 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.section-header h2 {
+  margin-bottom: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 38px 10px;
+  color: var(--muted);
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 16px;
+  border-radius: 16px;
+  background: var(--soft);
+  color: var(--accent);
+  font-size: 1.6rem;
+}
+
+.empty-state h3 {
+  color: var(--ink);
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+
+.empty-state p {
+  font-size: 0.88rem;
+  margin-bottom: 0;
+}
+
+/* TASK LIST: these rules style the elements built by renderTasks(). */
+.task-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.task-card {
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+
+.task-card:last-child {
+  padding-bottom: 0;
+}
+
+.task-top {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.task-title {
+  font-size: 1rem;
+  font-weight: 650;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* Completion uses a strike-through and a text status, not colour alone. */
+.task-card.is-completed .task-title {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.task-status {
+  font-size: 0.7rem;
+  font-weight: 650;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: #fff2d6;
+  color: #785400;
+  white-space: nowrap;
+}
+
+.is-completed .task-status {
+  background: #e3f3e9;
+  color: var(--success);
+}
+
+.task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-actions .toggle-button {
+  background: var(--soft);
+  color: var(--accent-dark);
+}
+
+/* Legacy styles for the removed API activity panel; that panel is not rendered. */
+.api-panel {
+  margin-top: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  background: white;
+}
+
+summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.api-panel p {
+  font-size: 0.8rem;
+  margin: 14px 0 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  table-layout: fixed;
+  font-size: 0.75rem;
+}
+
+th, td {
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  padding: 9px 4px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+th:first-child {
+  width: 22%;
+}
+
+th:last-child {
+  width: 22%;
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  padding: 28px 24px;
+  font-size: 0.73rem;
+}
+
+/* Hide supporting text visually without removing it from assistive technology. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* Keep the skip link out of view until a keyboard user focuses it. */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 12px;
+  padding: 8px 14px;
+  background: white;
+  z-index: 2;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* MOBILE REQUIREMENT: stack the form and list into one column at 760px or below. */
+@media (max-width: 760px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .site-header {
+    padding: 20px 24px;
+  }
+
+  .stat {
+    flex-direction: column;
+    align-items: start;
+    padding: 14px;
+  }
+
+  .stat span {
+    font-size: 0.8rem;
+  }
+
+}
+
+/* SMALL PHONES: reduce spacing and place task status below long titles. */
+@media (max-width: 420px) {
+  .container {
+    width: calc(100% - 32px);
+  }
+
+  .site-header {
+    padding: 16px;
+    align-items: start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .stats {
+    gap: 8px;
+  }
+
+  .stat {
+    padding: 12px 10px;
+  }
+
+  .stat span {
+    font-size: 0.71rem;
+  }
+
+  .task-top {
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 12px;
+  }
+
+  .task-title {
+    margin-bottom: 6px;
+  }
+
+}
+
+/* Respect a user preference for reduced animation. */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+}
+
+/* DELETE DIALOG: keep confirmation within the app and within the screen edges. */
 .confirm-dialog {
   width: min(420px, calc(100% - 32px));
   max-height: calc(100vh - 32px);
@@ -108,7 +582,26 @@ footer { text-align: center; color: var(--muted); padding: 28px 24px; font-size:
   color: var(--ink);
   box-shadow: 0 24px 80px rgba(25, 36, 58, 0.2);
 }
-.confirm-dialog::backdrop { background: rgba(25, 36, 58, 0.45); }
-.confirm-dialog p { font-size: 0.9rem; }
-.confirm-task-title { font-weight: 650; overflow-wrap: anywhere; }
-.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+/* Dim the rest of the page while the confirmation dialog is open. */
+.confirm-dialog::backdrop {
+  background: rgba(25, 36, 58, 0.45);
+}
+
+.confirm-dialog p {
+  font-size: 0.9rem;
+}
+
+.confirm-task-title {
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+/* Keep Cancel and Delete together; allow them to wrap on narrow screens. */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
