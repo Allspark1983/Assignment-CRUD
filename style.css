@@ -94,3 +94,21 @@ footer { text-align: center; color: var(--muted); padding: 28px 24px; font-size:
   .task-title { margin-bottom: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { .button { transition: none; } }
+
+/* In-page delete confirmation, without the browser's site-name heading. */
+.confirm-dialog {
+  width: min(420px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
+  margin: auto;
+  padding: 26px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 80px rgba(25, 36, 58, 0.2);
+}
+.confirm-dialog::backdrop { background: rgba(25, 36, 58, 0.45); }
+.confirm-dialog p { font-size: 0.9rem; }
+.confirm-task-title { font-weight: 650; overflow-wrap: anywhere; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
